@@ -38,13 +38,29 @@ TIMEZONE=<your_timezone>
 NTFY_CHANNEL=https://ntfy.sh/<your-channel-name>
 ```
 
-### 3. Install dependencies
+### 3. Create and activate a virtual environment:
+
+**On Linux/macOS:**
 
 ```bash
-pip install openmeteo-requests python-dotenv requests
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-### 4. Run the script:
+**On Windows (PowerShell):**
+
+```bash
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+### 4. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Run the script:
 
 ```bash
 python weather_bot.py
