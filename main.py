@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, time
 from google import genai
+from google.genai import errors
 
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
@@ -38,12 +39,12 @@ params = {
     "timezone": os.getenv("TIMEZONE"),
 }
 
+
 def get_weather(parameters):
     responses = om.weather_api(
         "https://api.open-meteo.com/v1/forecast", params=parameters
     )
     response = responses[0]
-
 
     # Current values
     current = response.Current()
@@ -117,8 +118,19 @@ def describe_forecast():
     client = genai.Client(api_key=gemini_api_key)
     forecast = get_weather(params)
     prompt = forecast_to_text(forecast)
-    response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-    return response.text
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash", contents=prompt
+        )
+        return response.text
+    except errors.ServerError as server_error:
+        fallback_message_if_error = (
+            "Prognoza nie mogła zostac wygenerowana z powodu błędu Gemini AI"
+        )
+        print(f"Server error code: {server_error.code}")
+        print(f"Server error message: {server_error.message}")
+        send_ntfy(fallback_message_if_error)
+        return fallback_message_if_error
 
 
 def forecast_to_text(forecast):
