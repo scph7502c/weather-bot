@@ -130,7 +130,7 @@ def describe_forecast():
         print(f"Server error code: {server_error.code}")
         print(f"Server error message: {server_error.message}")
         send_ntfy(fallback_message_if_error)
-        return fallback_message_if_error
+        return None
 
 
 def forecast_to_text(forecast):
@@ -164,4 +164,6 @@ def send_ntfy(prompt):
 
 
 if __name__ == "__main__":
-    send_ntfy(describe_forecast())
+    weather_result = describe_forecast()
+    if weather_result is not None:
+        send_ntfy(weather_result)
