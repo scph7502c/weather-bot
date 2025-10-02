@@ -1,22 +1,31 @@
 # Weather Messenger Bot ☀️🌧️🧥
 
-This Python script generates a personalized weather message with clothing suggestions based on current weather conditions. It uses the [Open-Meteo](https://open-meteo.com/) API for weather data and [Gemini](https://ai.google.dev/) for natural language generation.
+This Python bot generates a personalized weather forecasts messages with clothing recommendations for **today 18:00, tomorrow 06:00, 07: 00 and 11:00 (should be combined with cron jobs**. It uses [Open-Meteo](https://open-meteo.com/) for weather data and [Google Gemini AI](https://ai.google.dev/) for natural language generation.
 
-The generated message is sent via [ntfy.sh](https://ntfy.sh) as a notification.
+The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
+
+---
 
 ## ✨ Features
 
-- Retrieves current weather data: temperature, humidity, wind, precipitation, etc.
-- Uses Gemini to create a natural-sounding message tailored to a specific person.
-- Suggests how to dress based on the weather.
-- Sends the message via ntfy notification service.
+- Fetches hourly weather forecast:
+  - This evening (closest hour after 18:00 today)
+  - Tomorrow (06:00, 07:00, 11:00)
+- Analyzes temperature, apparent temperature, wind, humidity, precipitation, etc.
+- Generates a friendly message with outfit suggestions.
+- Handles Gemini AI server errors with retry logic.
+- Sends the final message via ntfy.sh.
 
-## 🧠 Technologies Used
+---
+
+## 🧠 Technologies
 
 - Python 3
 - [openmeteo-requests](https://pypi.org/project/openmeteo-requests/)
-- Google Gemini AI (via `google.genai`)
-- ntfy.sh for push notifications
+- Google Gemini API (`google.generativeai`)
+- [ntfy.sh](https://ntfy.sh)
+
+---
 
 ## 🚀 Setup
 
@@ -27,11 +36,11 @@ git clone https://github.com/yourusername/weather-messenger-bot.git
 cd weather-messenger-bot
 ```
 
-### 2. Create a .env file:
+### 2. Create a `.env` file:
 
-```bash
+```env
 GEMINI_API_KEY=<your_google_api_key>
-RECEIVER=<name_of_receiver>
+RECEIVER=<receiver_name>
 LATITUDE=<your_latitude>
 LONGITUDE=<your_longitude>
 TIMEZONE=<your_timezone>
@@ -49,23 +58,73 @@ source venv/bin/activate
 
 **On Windows (PowerShell):**
 
-```bash
+```powershell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-### 4. Install dependencies
+### 4. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the script:
+---
+
+## ▶️ Running the script
+
+Scripts are divided by use case:
+
+- `current.py` — current weather summary
+- `four_pm.py` — to be run around 16:00; gives forecast for **today at 18:00 and tomorrow at 07:00**
+- `nine_pm.py` — (optional) for late-night forecast
+
+Example run:
 
 ```bash
-python weather_bot.py
+python four_pm.py
 ```
 
-## 📅 Scheduled Use
+---
 
-You can automate this script with a cron job, systemd timer, or other scheduler to send daily messages in the morning.
+## 📅 Automation
+
+Recommended use with `cron`:
+
+```bash
+0 16 * * * /home/damian/weather-bot/venv/bin/python /home/damian/weather-bot/four_pm.py
+```
+
+---
+
+## 🛡️ Gemini AI error handling
+
+If Gemini AI returns a `ServerError`, the bot will:
+- retry up to 3 times,
+- wait with exponential backoff between attempts,
+- send a fallback notification if all attempts fail.
+
+---
+
+## 📬 Notification
+
+The generated message is pushed to your ntfy.sh channel. You can receive it:
+- on mobile (ntfy app),
+- via web browser,
+- or integrate it with your workflow.
+
+---
+
+## 📂 Project structure
+
+```bash
+weather-bot/
+├── current.py
+├── four_pm.py
+├── nine_pm.py
+├── .env
+├── .gitignore
+├── requirements.txt
+└── README.md
+```
+
