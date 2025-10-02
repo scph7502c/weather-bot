@@ -1,6 +1,6 @@
 # Weather Messenger Bot ☀️🌧️🧥
 
-This Python bot generates a personalized weather forecasts messages with clothing recommendations for **today 18:00, tomorrow 06:00, 07: 00 and 11:00 (should be combined with cron jobs**. It uses [Open-Meteo](https://open-meteo.com/) for weather data and [Google Gemini AI](https://ai.google.dev/) for natural language generation.
+This Python bot generates a personalized weather forecasts messages with clothing recommendations for **today 18:00, tomorrow 06:00, 07:00 and 19:00 (should be combined with cron jobs**. It uses [Open-Meteo](https://open-meteo.com/) for weather data and [Google Gemini AI](https://ai.google.dev/) for natural language generation.
 
 The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
@@ -10,7 +10,7 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
 - Fetches hourly weather forecast:
   - This evening (closest hour after 18:00 today)
-  - Tomorrow (06:00, 07:00, 11:00)
+  - Tomorrow (06:00, 07:00, 19:00)
 - Analyzes temperature, apparent temperature, wind, humidity, precipitation, etc.
 - Generates a friendly message with outfit suggestions.
 - Handles Gemini AI server errors with retry logic.
