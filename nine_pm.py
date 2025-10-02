@@ -86,13 +86,13 @@ def get_tomorrow_weather(parameters):
         hour=0, minute=0, second=0, microsecond=0
     ) + timedelta(days=1)
     target_6 = tomorrow.replace(hour=6)
-    target_11 = tomorrow.replace(hour=11)
+    target_19 = tomorrow.replace(hour=19)
 
     try:
         index_6 = datetimes.get_indexer([target_6])[0]
-        index_11 = datetimes.get_indexer([target_11])[0]
+        index_19 = datetimes.get_indexer([target_19])[0]
     except IndexError:
-        raise ValueError("There is no forecast for tomorrow 06:00 or 11:00.")
+        raise ValueError("There is no forecast for tomorrow 06:00 or 19:00.")
 
     variable_map = {
         "temperature": Variable.temperature,
@@ -120,23 +120,23 @@ def get_tomorrow_weather(parameters):
         return forecast
 
     forecast_6 = build_forecast(index_6)
-    forecast_11 = build_forecast(index_11)
+    forecast_19 = build_forecast(index_19)
 
-    return forecast_6, forecast_11
+    return forecast_6, forecast_19
 
 
 
 def describe_tomorrow_forecast():
     client = genai.Client(api_key=gemini_api_key)
-    forecast_6, forecast_11 = get_tomorrow_weather(tomorrow_params)
+    forecast_6, forecast_19 = get_tomorrow_weather(tomorrow_params)
 
-    if not forecast_6 or not forecast_11:
-        fallback_message = "Brak danych pogodowych na jutro o 06:00 lub 11:00"
+    if not forecast_6 or not forecast_19:
+        fallback_message = "Brak danych pogodowych na jutro o 06:00 lub 19:00"
         print(fallback_message)
         send_ntfy(fallback_message)
         return None
 
-    prompt = tomorrow_forecast_to_text(forecast_6, forecast_11)
+    prompt = tomorrow_forecast_to_text(forecast_6, forecast_19)
 
     max_retries = 3
     base_delay = 60
@@ -167,7 +167,7 @@ def describe_tomorrow_forecast():
 
 
 
-def tomorrow_forecast_to_text(f6, f11):
+def tomorrow_forecast_to_text(f6, f19):
     text = f"{current_datetime}\n{greeting}\n"
 
     def format_block(forecast, hour_label):
@@ -193,7 +193,7 @@ def tomorrow_forecast_to_text(f6, f11):
         return block
 
     text += format_block(f6, "06:00")
-    text += format_block(f11, "11:00")
+    text += format_block(f19, "19:00")
 
     return text
 

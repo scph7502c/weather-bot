@@ -31,11 +31,6 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
 ### 1. Clone the repo:
 
-```bash
-git clone https://github.com/yourusername/weather-messenger-bot.git
-cd weather-messenger-bot
-```
-
 ### 2. Create a `.env` file:
 
 ```env
@@ -56,13 +51,6 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-**On Windows (PowerShell):**
-
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-```
-
 ### 4. Install dependencies:
 
 ```bash
@@ -73,11 +61,11 @@ pip install -r requirements.txt
 
 ## ▶️ Running the script
 
-Scripts are divided by use case:
+Scripts are divided by my specific use cases:
 
 - `current.py` — current weather summary
-- `four_pm.py` — to be run around 16:00; gives forecast for **today at 18:00 and tomorrow at 07:00**
-- `nine_pm.py` — (optional) for late-night forecast
+- `four_pm.py` — to be run at 16:00; gives forecast for **today at 18:00 and next day at 07:00**
+- `nine_pm.py` — to be run at 21:00; gives forecast for **next day at 06:00 and at 19:00**
 
 Example run:
 
@@ -92,14 +80,14 @@ python four_pm.py
 Recommended use with `cron`:
 
 ```bash
-0 16 * * * /home/damian/weather-bot/venv/bin/python /home/damian/weather-bot/four_pm.py
+0 16 * * * /<project_directory>/run_four_pm.sh
 ```
 
 ---
 
 ## 🛡️ Gemini AI error handling
 
-If Gemini AI returns a `ServerError`, the bot will:
+If Gemini AI returns a `ServerError`, the script will:
 - retry up to 3 times,
 - wait with exponential backoff between attempts,
 - send a fallback notification if all attempts fail.
@@ -122,9 +110,14 @@ weather-bot/
 ├── current.py
 ├── four_pm.py
 ├── nine_pm.py
+├── current.py
 ├── .env
 ├── .gitignore
+├── venv
 ├── requirements.txt
+├── run_four_pm.sh
+├── run_nine_pm.sh
+├── run_current.sh
 └── README.md
 ```
 
