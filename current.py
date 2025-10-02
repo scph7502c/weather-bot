@@ -3,9 +3,10 @@ from openmeteo_sdk.Variable import Variable
 import requests
 import os
 from dotenv import load_dotenv
-from datetime import datetime, time
+from datetime import datetime, timezone, timedelta
 from google import genai
 from google.genai import errors
+import pandas as pd
 
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
@@ -17,14 +18,16 @@ longitude = os.getenv("LONGITUDE")
 greeting = (
     f"Napisz wiadomość przeznaczoną dla {receiver} na podstawie poniższej prognozy pogody. "
     "Opisz jaka jest obecnie pogoda."
-    f"Skoncentruj się na tym, jak {receiver} powinna/powinien się ubrać. "
+    f"Skoncentruj się na tym, jak {receiver} powinna się ubrać. "
 )
 
 current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+current_date = datetime.now()
 
 om = openmeteo_requests.Client()
-params = {
+
+current_params = {
     "latitude": latitude,
     "longitude": longitude,
     "current": [
@@ -40,7 +43,7 @@ params = {
 }
 
 
-def get_weather(parameters):
+def get_current_weather(parameters):
     responses = om.weather_api(
         "https://api.open-meteo.com/v1/forecast", params=parameters
     )
@@ -114,10 +117,10 @@ def get_weather(parameters):
     return forecast_dict
 
 
-def describe_forecast():
+def describe_current_forecast():
     client = genai.Client(api_key=gemini_api_key)
-    forecast = get_weather(params)
-    prompt = forecast_to_text(forecast)
+    forecast = get_current_weather(current_params)
+    prompt = current_forecast_to_text(forecast)
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash", contents=prompt
@@ -133,7 +136,7 @@ def describe_forecast():
         return None
 
 
-def forecast_to_text(forecast):
+def current_forecast_to_text(forecast):
     text = f"{current_datetime}\n{greeting}\nAktualna temperatura wynosi {forecast['temperature']}°C"
 
     if forecast["apparent_temperature"] != forecast["temperature"]:
@@ -159,11 +162,12 @@ def forecast_to_text(forecast):
 def send_ntfy(prompt):
     requests.post(
         ntfy_channel,
+        headers={"Markdown": "yes", "Title": "Aktualna pogoda", "Tags": "thermometer"},
         data=prompt.encode(encoding="utf-8"),
     )
 
 
 if __name__ == "__main__":
-    weather_result = describe_forecast()
+    weather_result = describe_current_forecast()
     if weather_result is not None:
         send_ntfy(weather_result)
