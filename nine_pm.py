@@ -45,7 +45,9 @@ current_params = {
     "timezone": os.getenv("TIMEZONE"),
 }
 
-tomorrow_date_str = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
+tomorrow_date_str = (datetime.now(timezone.utc) + timedelta(days=1)).strftime(
+    "%Y-%m-%d"
+)
 
 tomorrow_params = {
     "latitude": latitude,
@@ -127,7 +129,6 @@ def get_tomorrow_weather(parameters):
     return forecast_6, forecast_19
 
 
-
 def describe_tomorrow_forecast():
     client = genai.Client(api_key=gemini_api_key)
     forecast_6, forecast_19 = get_tomorrow_weather(tomorrow_params)
@@ -160,17 +161,15 @@ def describe_tomorrow_forecast():
                 print(f"Waiting {retry_delay} seconds until retrying...")
                 time.sleep(retry_delay)
             else:
-                fallback_message_if_error = (
-                    "Prognoza nie mogła zostać wygenerowana po 3 próbach — błąd Gemini AI"
-                )
+                fallback_message_if_error = "Prognoza nie mogła zostać wygenerowana po 3 próbach — błąd Gemini AI"
                 send_ntfy(fallback_message_if_error)
                 return None
     return None
 
 
-
 def tomorrow_forecast_to_text(f6, f19):
     text = f"{current_datetime}\n{greeting}\n"
+
     def format_block(forecast, hour_label):
         block = f"\n{hour_label} — temperatura {forecast['temperature']}°C"
         if forecast["apparent_temperature"] != forecast["temperature"]:

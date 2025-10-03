@@ -30,7 +30,9 @@ current_date = datetime.now()
 
 om = openmeteo_requests.Client()
 
-tomorrow_date_str = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d")
+tomorrow_date_str = (datetime.now(timezone.utc) + timedelta(days=1)).strftime(
+    "%Y-%m-%d"
+)
 
 tomorrow_params = {
     "latitude": latitude,
@@ -45,7 +47,6 @@ tomorrow_params = {
         "precipitation_probability",
     ],
     "timezone": os.getenv("TIMEZONE"),
-
 }
 
 
@@ -71,7 +72,9 @@ def get_evening_and_tomorrow_weather(parameters):
     now_utc = datetime.now(timezone.utc)
     today_18 = now_utc.replace(hour=18, minute=0, second=0, microsecond=0)
 
-    tomorrow_07 = now_utc.replace(hour=7, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    tomorrow_07 = now_utc.replace(
+        hour=7, minute=0, second=0, microsecond=0
+    ) + timedelta(days=1)
 
     try:
         index_18 = datetimes.get_indexer([today_18], method="nearest")[0]
@@ -95,8 +98,10 @@ def get_evening_and_tomorrow_weather(parameters):
         forecast = {}
         for name, variable_type in variable_map.items():
             match = [
-                v for v in hourly_variables
-                if v.Variable() == variable_type and (v.Altitude() in (2, 10) or v.Altitude() == 0)
+                v
+                for v in hourly_variables
+                if v.Variable() == variable_type
+                and (v.Altitude() in (2, 10) or v.Altitude() == 0)
             ]
             if match:
                 forecast[name] = round(match[0].Values(index), 2)
@@ -145,9 +150,7 @@ def describe_tomorrow_forecast():
                 print(f"Waiting {retry_delay} seconds until retrying...")
                 time.sleep(retry_delay)
             else:
-                fallback_message_if_error = (
-                    "Prognoza nie mogła zostać wygenerowana po 3 próbach — błąd Gemini AI"
-                )
+                fallback_message_if_error = "Prognoza nie mogła zostać wygenerowana po 3 próbach — błąd Gemini AI"
                 send_ntfy(fallback_message_if_error)
                 return None
     return None
