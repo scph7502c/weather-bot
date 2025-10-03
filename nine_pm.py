@@ -18,8 +18,10 @@ latitude = os.getenv("LATITUDE")
 longitude = os.getenv("LONGITUDE")
 greeting = (
     f"Napisz wiadomość przeznaczoną dla {receiver} na podstawie poniższej prognozy pogody. "
-    "Opisz jaka jest obecnie pogoda."
-    f"Skoncentruj się na tym, jak {receiver} powinna się ubrać. "
+    "Opisz pogody z prognozy."
+    f"Skoncentruj się na tym, jak {receiver} powinna się ubrać."
+    "Użyj markdown, aby zaznaczyć najważniejsze informacje."
+    "Wiadomość ma nie przekraczać 1300 znaków."
 )
 
 current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -58,8 +60,6 @@ tomorrow_params = {
         "precipitation_probability",
     ],
     "timezone": os.getenv("TIMEZONE"),
-    "start_date": tomorrow_date_str,
-    "end_date": tomorrow_date_str,
 }
 
 
@@ -121,6 +121,8 @@ def get_tomorrow_weather(parameters):
 
     forecast_6 = build_forecast(index_6)
     forecast_19 = build_forecast(index_19)
+    print(f"Prognoza na jutro na 06:00: {forecast_6}")
+    print(f"Prognoza na jutro na 19:00: {forecast_19}")
 
     return forecast_6, forecast_19
 
@@ -169,7 +171,6 @@ def describe_tomorrow_forecast():
 
 def tomorrow_forecast_to_text(f6, f19):
     text = f"{current_datetime}\n{greeting}\n"
-
     def format_block(forecast, hour_label):
         block = f"\n{hour_label} — temperatura {forecast['temperature']}°C"
         if forecast["apparent_temperature"] != forecast["temperature"]:
@@ -192,11 +193,10 @@ def tomorrow_forecast_to_text(f6, f19):
         block += "."
         return block
 
-    text += format_block(f6, "06:00")
-    text += format_block(f19, "19:00")
+    text += format_block(f6, "Jutro 06:00")
+    text += format_block(f19, "Jutro 19:00")
 
     return text
-
 
 
 def send_ntfy(prompt):

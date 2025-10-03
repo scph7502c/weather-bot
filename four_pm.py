@@ -17,9 +17,11 @@ ntfy_channel = os.getenv("NTFY_CHANNEL")
 latitude = os.getenv("LATITUDE")
 longitude = os.getenv("LONGITUDE")
 greeting = (
-    f"Napisz wiadomość przeznaczoną dla {receiver} na podstawie poniższej prognozy pogody. "
-    "Opisz jaka jest obecnie pogoda."
-    f"Skoncentruj się na tym, jak {receiver} powinna się ubrać. "
+    f"Napisz wiadomość przeznaczoną dla {receiver} na podstawie poniższych prognoz pogody. "
+    "Opisz te prognozy."
+    f"Skoncentruj się na tym, jak {receiver} powinna się ubrać."
+    "Użyj markdown, aby zaznaczyć najważniejsze informacje."
+    "Wiadomość ma nie przekraczać 1300 znaków."
 )
 
 current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -43,8 +45,7 @@ tomorrow_params = {
         "precipitation_probability",
     ],
     "timezone": os.getenv("TIMEZONE"),
-    "start_date": tomorrow_date_str,
-    "end_date": tomorrow_date_str,
+
 }
 
 
@@ -59,12 +60,7 @@ def get_evening_and_tomorrow_weather(parameters):
     end_ts = hourly.TimeEnd()
     interval = hourly.Interval()
 
-    now_utc = datetime.now(timezone.utc)
-    tomorrow = now_utc.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(
-        days=1
-    )
-
-    # All available times as datetimes
+    # datetimes UTC
     datetimes = pd.date_range(
         start=pd.to_datetime(start_ts, unit="s", utc=True),
         end=pd.to_datetime(end_ts, unit="s", utc=True),
@@ -72,37 +68,16 @@ def get_evening_and_tomorrow_weather(parameters):
         inclusive="left",
     )
 
-    # Looking for the closest next hour tonight (after 5:00 PM)
-    evening_candidate = next(
-        (
-            dt
-            for dt in datetimes
-            if now_utc.date() == dt.date() and dt.hour >= 18 and dt > now_utc
-        ),
-        None,
-    )
+    now_utc = datetime.now(timezone.utc)
+    today_18 = now_utc.replace(hour=18, minute=0, second=0, microsecond=0)
 
-    # Tomorrow 07:00
-    tomorrow_07_utc = tomorrow.replace(hour=7)
-    index_07 = datetimes.get_indexer([tomorrow_07_utc], method="nearest")[0]
+    tomorrow_07 = now_utc.replace(hour=7, minute=0, second=0, microsecond=0) + timedelta(days=1)
 
-    index_18 = (
-        datetimes.get_indexer([evening_candidate], method="nearest")[0]
-        if evening_candidate
-        else None
-    )
-
-    # Validate: max offset 90 minututes
-    max_offset = timedelta(minutes=90)
-    actual_18_time = datetimes[index_18] if index_18 is not None else None
-    actual_07_time = datetimes[index_07]
-
-    if actual_18_time and abs(actual_18_time - evening_candidate) > max_offset:
-        print(f"Zbyt duża różnica od wieczoru — znaleziono {actual_18_time}")
-        index_18 = None
-    if abs(actual_07_time - tomorrow_07_utc) > max_offset:
-        print(f"Zbyt duża różnica od 07:00 — znaleziono {actual_07_time}")
-        index_07 = None
+    try:
+        index_18 = datetimes.get_indexer([today_18], method="nearest")[0]
+        index_07 = datetimes.get_indexer([tomorrow_07], method="nearest")[0]
+    except IndexError:
+        raise ValueError("Brak prognozy na dziś 18:00 lub jutro 07:00.")
 
     variable_map = {
         "temperature": Variable.temperature,
@@ -120,17 +95,20 @@ def get_evening_and_tomorrow_weather(parameters):
         forecast = {}
         for name, variable_type in variable_map.items():
             match = [
-                v
-                for v in hourly_variables
-                if v.Variable() == variable_type
-                and (v.Altitude() in (2, 10) or v.Altitude() == 0)
+                v for v in hourly_variables
+                if v.Variable() == variable_type and (v.Altitude() in (2, 10) or v.Altitude() == 0)
             ]
             if match:
                 forecast[name] = round(match[0].Values(index), 2)
         return forecast
 
-    forecast_18 = build_forecast(index_18) if index_18 is not None else None
-    forecast_07 = build_forecast(index_07) if index_07 is not None else None
+    forecast_18 = build_forecast(index_18)
+    forecast_07 = build_forecast(index_07)
+
+    # print(f"[DEBUG] today_18: {today_18} -> {datetimes[index_18]}")
+    # print(f"[DEBUG] tomorrow_07: {tomorrow_07} -> {datetimes[index_07]}")
+    # print(f"[DEBUG] forecast_18: {forecast_18}")
+    # print(f"[DEBUG] forecast_07: {forecast_07}")
 
     return forecast_18, forecast_07
 
