@@ -1,4 +1,4 @@
-# Weather Messenger Bot ☀️🌧️🧥
+# Weather Messenger Bot
 
 This Python bot generates a personalized weather forecasts messages with clothing recommendations for **today 18:00, tomorrow 06:00, 07:00 and 19:00 (should be combined with cron jobs**. It uses [Open-Meteo](https://open-meteo.com/) for weather data and [Google Gemini AI](https://ai.google.dev/) for natural language generation.
 
@@ -6,7 +6,7 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
 ---
 
-## ✨ Features
+## Features
 
 - Fetches hourly weather forecast:
   - This evening (closest hour after 18:00 today)
@@ -18,7 +18,7 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
 ---
 
-## 🧠 Technologies
+## Technologies
 
 - Python 3
 - [openmeteo-requests](https://pypi.org/project/openmeteo-requests/)
@@ -27,7 +27,7 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
 ---
 
-## 🚀 Setup
+## Setup
 
 ### 1. Clone the repo:
 
@@ -59,7 +59,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶️ Running the script
+## Running the script
 
 Scripts are divided by my specific use cases:
 
@@ -75,7 +75,7 @@ python four_pm.py
 
 ---
 
-## 📅 Automation
+## Automation
 
 Recommended use with `cron`:
 
@@ -85,7 +85,7 @@ Recommended use with `cron`:
 
 ---
 
-## 🛡️ Gemini AI error handling
+## Gemini AI error handling
 
 If Gemini AI returns a `ServerError`, the script will:
 - retry up to 3 times,
@@ -94,7 +94,7 @@ If Gemini AI returns a `ServerError`, the script will:
 
 ---
 
-## 📬 Notification
+## Notification
 
 The generated message is pushed to your ntfy.sh channel. You can receive it:
 - on mobile (ntfy app),
@@ -103,7 +103,7 @@ The generated message is pushed to your ntfy.sh channel. You can receive it:
 
 ---
 
-## 📂 Project structure
+## Project structure
 
 ```bash
 weather-bot/
