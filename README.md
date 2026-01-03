@@ -4,8 +4,6 @@ This Python bot generates a personalized weather forecasts messages with clothin
 
 The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 
----
-
 ## Features
 
 - Fetches hourly weather forecast:
@@ -16,7 +14,6 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 - Handles Gemini AI server errors with retry logic.
 - Sends the final message via ntfy.sh.
 
----
 
 ## Technologies
 
@@ -25,13 +22,12 @@ The final message is sent as a notification using [ntfy.sh](https://ntfy.sh).
 - Google Gemini API (`google.generativeai`)
 - [ntfy.sh](https://ntfy.sh)
 
----
 
 ## Setup
 
-### 1. Clone the repo:
+**1. Clone the repo:**
 
-### 2. Create a `.env` file:
+**2. Create a `.env` file:**
 
 ```env
 GEMINI_API_KEY=<your_google_api_key>
@@ -57,8 +53,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
 ## Running the script
 
 Scripts are divided by my specific use cases:
@@ -73,8 +67,6 @@ Example run:
 python four_pm.py
 ```
 
----
-
 ## Automation
 
 Recommended use with `cron`:
@@ -83,8 +75,6 @@ Recommended use with `cron`:
 0 16 * * * /<project_directory>/run_four_pm.sh
 ```
 
----
-
 ## Gemini AI error handling
 
 If Gemini AI returns a `ServerError`, the script will:
@@ -92,7 +82,6 @@ If Gemini AI returns a `ServerError`, the script will:
 - wait with exponential backoff between attempts,
 - send a fallback notification if all attempts fail.
 
----
 
 ## Notification
 
@@ -100,8 +89,6 @@ The generated message is pushed to your ntfy.sh channel. You can receive it:
 - on mobile (ntfy app),
 - via web browser,
 - or integrate it with your workflow.
-
----
 
 ## Project structure
 
@@ -120,4 +107,3 @@ weather-bot/
 ├── run_current.sh
 └── README.md
 ```
-
